@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: external-dns
+  name: external-dns
+  namespace: external-dns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: external-dns
+  template:
+    metadata:
+      labels:
+        app: external-dns
+    spec:
+      serviceAccountName: external-dns
+      containers:
+        - name: external-dns
+          image: registry.k8s.io/external-dns/external-dns:v0.20.0
+          args:
+            - --log-level=debug
+            - --source=crd
+            - --source=service
+            - --domain-filter=shore.ox.ac.uk
+            - --provider=webhook
+          imagePullPolicy: Always
+        - name: webhook
+          image: k8s-registry.shore.it.ox.ac.uk/csst/hydra-webhook-external-dns
+          imagePullPolicy: Always
+          env:
+            - name: HYDRA_URI
+              valueFrom:
+                secretKeyRef:
+                  name: external-dns-hydra-secret
+                  key: HYDRA_URI
+            - name: HYDRA_TOKEN_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: external-dns-hydra-secret
+                  key: HYDRA_TOKEN_NAME
+            - name: HYDRA_TOKEN_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: external-dns-hydra-secret
+                  key: HYDRA_TOKEN_PASS
+
