@@ -1,0 +1,6 @@
+@HydraWebHook_HostAddress = http://localhost:5126
+
+GET {{HydraWebHook_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
