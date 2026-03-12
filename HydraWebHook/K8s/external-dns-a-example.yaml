@@ -1,0 +1,11 @@
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: test-a-showing-off
+  namespace: external-dns
+spec:
+  endpoints:
+  - dnsName: test-a-record.shore.ox.ac.uk
+    recordType: CNAME
+    targets:
+    - 129.67.241.120

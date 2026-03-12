@@ -45,4 +45,3 @@ spec:
                 secretKeyRef:
                   name: external-dns-hydra-secret
                   key: HYDRA_TOKEN_PASS
-
