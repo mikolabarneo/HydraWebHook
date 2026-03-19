@@ -25,6 +25,7 @@ spec:
             - --source=service
             - --domain-filter=shore.ox.ac.uk
             - --provider=webhook
+            - --txt-owner-id=csst-cluster
           imagePullPolicy: Always
         - name: webhook
           image: k8s-registry.shore.it.ox.ac.uk/csst/hydra-webhook-external-dns
