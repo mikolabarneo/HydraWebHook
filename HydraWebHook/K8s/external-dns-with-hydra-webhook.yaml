@@ -32,17 +32,14 @@ spec:
           imagePullPolicy: Always
           env:
             - name: HYDRA_URI
-              valueFrom:
-                secretKeyRef:
-                  name: external-dns-hydra-secret
-                  key: HYDRA_URI
+              value: 'some legal url'
             - name: HYDRA_TOKEN_NAME
               valueFrom:
                 secretKeyRef:
                   name: external-dns-hydra-secret
-                  key: HYDRA_TOKEN_NAME
+                  key: username
             - name: HYDRA_TOKEN_PASS
               valueFrom:
                 secretKeyRef:
                   name: external-dns-hydra-secret
-                  key: HYDRA_TOKEN_PASS
+                  key: password
