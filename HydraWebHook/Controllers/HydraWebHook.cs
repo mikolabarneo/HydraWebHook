@@ -4,6 +4,9 @@ using Newtonsoft.Json;
 
 namespace HydraWebHook.Controllers
 {
+    /// <summary>
+    /// Main controller for handling External DNS webhooks.
+    /// </summary>
     [ApiController]
     [Route("[controller]")]
     public class HydraWebHook(ILogger<HydraWebHook> logger) : ControllerBase
@@ -13,12 +16,20 @@ namespace HydraWebHook.Controllers
         private readonly string? _tokenPass = Environment.GetEnvironmentVariable("HYDRA_TOKEN_PASS");
         private const string MediaTypeFormatAndVersion = "application/external.dns.webhook+json;version=1";
 
+        /// <summary>
+        /// Health check endpoint.
+        /// </summary>
+        /// <returns>An IResult indicating the health status.</returns>
         [HttpGet("/healthz", Name = "HealthCheck")]
         public IResult Check()
         {
             return Results.Ok();
         }
 
+        /// <summary>
+        /// Initialization endpoint that provides a domain filter.
+        /// </summary>
+        /// <returns>An IResult containing the domain filter.</returns>
         [HttpGet("/", Name = "Init")]
         public IResult Init()
         {
@@ -29,6 +40,11 @@ namespace HydraWebHook.Controllers
             return Results.Json(domainFilter, contentType: MediaTypeFormatAndVersion);
         } 
         
+        /// <summary>
+        /// Gets DNS records from the Hydra API.
+        /// </summary>
+        /// <param name="search">The search string to filter records.</param>
+        /// <returns>An IResult containing the list of DNS records.</returns>
         [HttpGet("/records", Name = "GetRecords")]
         public async Task<IResult> Get(string search = "")
         {
@@ -91,6 +107,11 @@ namespace HydraWebHook.Controllers
             }
         }
         
+        /// <summary>
+        /// Applies DNS changes (create, update, delete).
+        /// </summary>
+        /// <param name="changes">The package of DNS changes to apply.</param>
+        /// <returns>An IResult indicating the outcome of the operation.</returns>
         [HttpPost("/records", Name = "ManipulateRecords")]
         public async Task<IResult> ApplyChanges([FromBody] ExternalDnsPackage changes)
         {
@@ -134,6 +155,11 @@ namespace HydraWebHook.Controllers
             }
         }
 
+        /// <summary>
+        /// Adjusts endpoints based on the provided records.
+        /// </summary>
+        /// <param name="recordsToAdjust">A list of records to adjust.</param>
+        /// <returns>An IResult containing the adjusted records.</returns>
         [HttpPost("/adjustendpoints", Name = "UpdateEndpoints")]
         public async Task<IResult> AdjustEndpointsHandler([FromBody] List<ExternalDnsRecord> recordsToAdjust)
         {

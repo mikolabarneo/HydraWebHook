@@ -2,6 +2,9 @@
 
 namespace HydraWebHook.Models
 {
+    /// <summary>
+    /// Represents a DNS record from the Hydra API.
+    /// </summary>
     public class HydraRecord
     {
 

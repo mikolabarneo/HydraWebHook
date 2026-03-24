@@ -2,6 +2,9 @@
 
 namespace HydraWebHook.Models
 {
+    /// <summary>
+    /// Provides helper methods for serializing and deserializing Hydra records.
+    /// </summary>
     public static class RecordHelpers
     {
 

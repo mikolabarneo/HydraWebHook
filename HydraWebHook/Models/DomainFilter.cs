@@ -2,6 +2,9 @@
 
 namespace HydraWebHook.Models
 {
+    /// <summary>
+    /// Represents a domain filter for External DNS.
+    /// </summary>
     public class DomainFilter
     {
         [JsonPropertyName("Filter")]

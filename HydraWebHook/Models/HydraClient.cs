@@ -2,6 +2,9 @@
 
 namespace HydraWebHook.Models
 {
+    /// <summary>
+    /// Client for interacting with the Hydra API.
+    /// </summary>
     public class HydraClient
     {
         private readonly HttpClient _httpClient = new();

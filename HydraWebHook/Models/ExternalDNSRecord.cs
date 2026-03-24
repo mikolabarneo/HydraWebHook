@@ -2,6 +2,9 @@
 
 namespace HydraWebHook.Models
 {
+    /// <summary>
+    /// Represents a DNS record for External DNS.
+    /// </summary>
     public class ExternalDnsRecord
     {
         [JsonPropertyName("dnsName")]

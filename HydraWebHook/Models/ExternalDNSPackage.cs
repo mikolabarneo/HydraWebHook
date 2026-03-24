@@ -2,6 +2,9 @@
 
 namespace HydraWebHook.Models
 {
+    /// <summary>
+    /// Represents a package of DNS changes (create, update, delete) for External DNS.
+    /// </summary>
     public class ExternalDnsPackage
     {
         [JsonPropertyName("Create")]
