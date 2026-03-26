@@ -14,6 +14,7 @@ namespace HydraWebHook.Controllers
         private readonly string? _uri = Environment.GetEnvironmentVariable("HYDRA_URI");
         private readonly string? _tokenName = Environment.GetEnvironmentVariable("HYDRA_TOKEN_NAME");
         private readonly string? _tokenPass = Environment.GetEnvironmentVariable("HYDRA_TOKEN_PASS");
+        private readonly string? _domainFilter = Environment.GetEnvironmentVariable("DOMAIN_FILTER");
         private const string MediaTypeFormatAndVersion = "application/external.dns.webhook+json;version=1";
 
         /// <summary>
@@ -35,7 +36,7 @@ namespace HydraWebHook.Controllers
         {
             var domainFilter = new DomainFilter 
             {
-                Filter = ["shore.ox.ac.uk"]
+                Filter = [_domainFilter]
             };
             return Results.Json(domainFilter, contentType: MediaTypeFormatAndVersion);
         } 

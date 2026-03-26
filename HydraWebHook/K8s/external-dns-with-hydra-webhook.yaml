@@ -43,3 +43,5 @@ spec:
                 secretKeyRef:
                   name: external-dns-hydra-secret
                   key: password
+            - name: DOMAIN_FILTER
+              value: "shore.ox.ac.uk"
