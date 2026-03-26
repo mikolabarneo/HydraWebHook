@@ -1,26 +1,130 @@
-# HydraWebHook
+## Overview
 
-* Setup
+This guide walks you through deploying **ExternalDNS with a Hydra webhook** to create your own domain record.
 
-1. Install cdr for DNSEndpoint ```kubectl apply -f dnsendpoints.externaldns.k8s.io.yaml```
-1. Initialize namespace, serviceAccount, clusterRole, clusterRoleBinding using ```kubectl apply -f external-dns-init.yaml``` 
-2. Replace placeholders in external-dns-hydra-secret.yaml with your data or use your secret from hydra certificate application
-3. Write down the Hydra server Url (ended with '/') as an ENV variable HYDRA_URI text to external-dns-with-hydra-webhook.yaml
-4. Define the DOMAIN_FILTER ENV variable in external-dns-with-hydra-webhook.yaml. This is mandatory for the webhook to know which domain to filter for.
-5. ```kubectl apply -f external-dns-hydra-secret.yaml```
-6. ```kubectl apply -f external-dns-with-hydra-webhook.yaml```
+It supports multiple sources:
 
-As a result pod with 2 containers (one of which is our webhook sidecar) should start up
+- CRDs (`DNSEndpoint`) - we use this one as we like to have a CNAME record per app in one cluster
+- Services (`LoadBalancer`) 
+- Contour `HTTPProxy` 
 
-* CRDs and services
+## Prerequisites
 
-The args section of the external-dns container in ```external-dns-with-hydra-webhook.yaml``` *contains --source*
+- Kubernetes cluster
+- kubectl configured
+- Hydra DNS API access
+- Contour installed (if using HTTPProxy)
+- Clone the repo
 
-if *- --source=crd* present, the application will try to register/modify records set up using DNSEndpoint artifacts defined on the entire cluster, for the example see ```external-dns-dnsendpoint-{a|cname}-example.yaml```
-if *- --source=service* present, the "application will try to register/modify A records automatically for k8s service of type LoadBalancer (mostly contour envoy that have ExternalIP defined). But you need to add annotation to populate the hostname for the A record.
 ```
- metadata:
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: csst-cluster-ingress.shore.ox.ac.uk
+git clone https://github.com/mikolabarneo/HydraWebHook.git
+
+cd HydraWebHook/HydraWebHook/K8s
 ```
-if *- --source=contour-httpproxy* present, no additional annotations needed, in this case the application will try to register A record for each httpproxy entry
+
+---
+
+## Step 1 — Install DNSEndpoint CRD
+
+```bash
+kubectl apply -f dnsendpoints.externaldns.k8s.io.yaml
+```
+
+---
+
+## Step 2 — Create Namespace and RBAC
+
+```bash
+kubectl apply -f external-dns-init.yaml
+```
+
+---
+
+## Step 3 — Create Hydra Secret
+
+### Recommended (basic-auth)
+
+Replace your token username and password in the file
+
+```bash
+nano external-dns-hydra-secret.yaml
+```
+
+Set:
+
+```yaml
+-  username: tokenUserName
+-  password: tokenPassword
+```
+
+Then apply:
+
+```bash
+kubectl apply -f external-dns-hydra-secret.yaml
+```
+
+---
+
+## Step 4 — Deploy ExternalDNS with Hydra Webhook
+
+Configure the external DNS paramaters
+
+```bash
+nano external-dns-with-hydra-webhook.yaml
+```
+
+Set HYDRA_URI:
+
+```yaml
+env:
+  - name: HYDRA_URI
+    value: "https://www.networks.it.ox.ac.uk/api/ipam"
+```
+
+And Set --txt-owner-id, --source.
+
+```yaml
+spec:
+  serviceAccountName: external-dns
+  containers:
+    - name: external-dns
+      image: registry.k8s.io/external-dns/external-dns:v0.20.0
+      args:
+        - --log-level=debug
+        - --source=crd 
+        - --domain-filter=shore.ox.ac.uk
+        - --provider=webhook
+        - --txt-owner-id=oxfordfun # e.g. your tanzu namespace
+      imagePullPolicy: Always
+```
+
+Then apply:
+
+```bash
+kubectl apply -f external-dns-with-hydra-webhook.yaml
+```
+
+With **--txt-owner-id=yourcluster**, ExternalDNS tracks ownership of DNS records using TXT records, so it only manages the records it created. This prevents conflicts between multiple clusters or systems and ensures it won’t accidentally modify or delete DNS entries owned by something else.
+
+---
+
+## Step 5 — Verify Deployment
+
+```bash
+kubectl get pods -n external-dns
+kubectl describe pod <podname> -n external-dns
+```
+
+Expected pod running with 2 containers:
+
+  - external-dns
+  - hydra-webhook
+---
+
+## Check Logs
+
+```bash
+kubectl logs -n external-dns deploy/external-dns
+```
+
+---
