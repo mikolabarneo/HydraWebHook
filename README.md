@@ -80,8 +80,14 @@ env:
   - name: HYDRA_URI
     value: "https://www.networks.it.ox.ac.uk/api/ipam"
 ```
+Set DOMAIN_FILTER:
+```yaml
+env:
+  - name: DOMAIN_FILTER
+    value: "shore.ox.ac.uk"
+```
 
-And Set --txt-owner-id, --source.
+And Set --txt-owner-id, --source --domain-filter.
 
 ```yaml
 spec:
