@@ -34,11 +34,15 @@ namespace HydraWebHook.Controllers
         [HttpGet("/", Name = "Init")]
         public IResult Init()
         {
-            var domainFilter = new DomainFilter 
+            if (_domainFilter != null)
             {
-                Filter = [_domainFilter]
-            };
-            return Results.Json(domainFilter, contentType: MediaTypeFormatAndVersion);
+                var domainFilter = new DomainFilter 
+                {
+                    Filter = [_domainFilter]
+                };
+                return Results.Json(domainFilter, contentType: MediaTypeFormatAndVersion);
+            }
+            else return Results.Problem("Domain filter not set");
         } 
         
         /// <summary>
